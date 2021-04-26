@@ -114,10 +114,10 @@ function questions() {
                         },
                         message: "Which role is the employee being given? "
                     }
-                    ]).then(function (answer) {
+                    ]).then(function (response) {
                         let role_id;
                         for (let a = 0; a < res.length; a++) {
-                            if (res[a].title == answer.role) {
+                            if (res[a].title == response.role) {
                                 role_id = res[a].id;
                                 console.log(role_id)
                             }                  
@@ -125,9 +125,9 @@ function questions() {
                         connection.query(
                         'INSERT INTO employee SET ?',
                         {
-                            first_name: answer.first_name,
-                            last_name: answer.last_name,
-                            manager_id: answer.manager_id,
+                            first_name: response.first_name,
+                            last_name: response.last_name,
+                            manager_id: response.manager_id,
                             role_id: role_id,
                         },
                         function (err) {
@@ -138,4 +138,80 @@ function questions() {
                     })
             })
     };
-    
+    function addDepartment() {
+        inquirer
+            .prompt([
+                {
+                    name: 'newDepartment', 
+                    type: 'input', 
+                    message: 'Which department would you like to add?'
+                }
+                ]).then(function (response) {
+                    connection.query(
+                        'INSERT INTO department SET ?',
+                        {
+                            name: response.newDepartment
+                        });
+                    var query = 'SELECT * FROM department';
+                    connection.query(query, function(err, res) {
+                    if(err)throw err;
+                    console.log('Your department has been added!');
+                    console.table('All Departments:', res);
+                    options();
+                    })
+                })
+    };
+    function addRole() {
+        connection.query('SELECT * FROM department', function(err, res) {
+            if (err) throw err;
+        
+            inquirer 
+            .prompt([
+                {
+                    name: 'new_role',
+                    type: 'input', 
+                    message: "What is the name of the new role you want to add?"
+                },
+                {
+                    name: 'salary',
+                    type: 'input',
+                    message: 'How much will you be paying this new role?'
+                },
+                {
+                    name: 'Department',
+                    type: 'list',
+                    choices: function() {
+                        var deptArry = [];
+                        for (let i = 0; i < res.length; i++) {
+                        deptArry.push(res[i].name);
+                        }
+                        return deptArry;
+                    },
+                }
+            ]).then(function (response) {
+                let department_id;
+                for (let a = 0; a < res.length; a++) {
+                    if (res[a].name == response.Department) {
+                        department_id = res[a].id;
+                    }
+                }
+        
+                connection.query(
+                    'INSERT INTO role SET ?',
+                    {
+                        title: response.new_role,
+                        salary: response.salary,
+                        department_id: department_id
+                    },
+                    function (err, res) {
+                        if(err)throw err;
+                        console.log('Your new role has been added!');
+                        console.table('All Roles:', res);
+                        options();
+                    })
+            })
+        })
+    };
+    function exitApp() {
+        connection.end();
+    };
