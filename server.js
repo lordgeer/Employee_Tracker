@@ -1,16 +1,20 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-const consoleTable = require('console.table')
-const connection = require('/config/connection')
+const consoleTable = require('console.table');
 
+const connection = require('./configs/connection.js');
 
+connection.connect(function(err){
+    if (err) throw err;
+    questions();
+})
 
 function questions() {
     inquirer
         .prompt({
-            name: 'action',
+            name: 'welcome',
             type: 'list',
-            message: 'Welcome to the Zann Consortium database! What is on the agenda today?',
+            message: 'Welcome to the Zann Consortium member database! What is on the agenda today?',
             choices: [
                     'View all employees',
                     'View all departments',
@@ -23,7 +27,7 @@ function questions() {
                     'EXIT'
                     ]
                 }).then(function (response) {
-                    switch (response.action) {
+                    switch (response.welcome) {
                         case 'View all employees':
                             viewEmployees();
                             break;
@@ -58,28 +62,28 @@ function questions() {
     };
 
     function viewEmployees() {
-        var query = 'SELECT * FROM employee';
+        const query = 'SELECT * FROM employee';
         connection.query(query, function(err, res) {
             if (err) throw err;
             console.log(res.length + ' employees found!');
-            console.table('All Employees:', res); 
-            options();
+            console.table('Current Employees:', res); 
+            questions();
         })
     };
     function viewDepartments() {
-        var query = 'SELECT * FROM department';
+        const query = 'SELECT * FROM department';
         connection.query(query, function(err, res) {
             if(err)throw err;
-            console.table('All Departments:', res);
-            options();
+            console.table('Current Departments:', res);
+            questions();
         })
     };
     function viewRoles() {
-        var query = 'SELECT * FROM role';
+        const query = 'SELECT * FROM role';
         connection.query(query, function(err, res){
             if (err) throw err;
-            console.table('All Roles:', res);
-            options();
+            console.table('Current Roles:', res);
+            questions();
         })
     };
     function addEmployee() {
@@ -106,7 +110,7 @@ function questions() {
                         name: 'role', 
                         type: 'list',
                         choices: function() {
-                        var roleArray = [];
+                        const roleArray = [];
                         for (let i = 0; i < res.length; i++) {
                             roleArray.push(res[i].title);
                         }
@@ -133,7 +137,7 @@ function questions() {
                         function (err) {
                             if (err) throw err;
                             console.log('Congrats on onboarding your new "employee"');
-                            options();
+                            questions();
                         })
                     })
             })
@@ -152,12 +156,12 @@ function questions() {
                         {
                             name: response.newDepartment
                         });
-                    var query = 'SELECT * FROM department';
+                    const query = 'SELECT * FROM department';
                     connection.query(query, function(err, res) {
                     if(err)throw err;
                     console.log('Your department has been added!');
                     console.table('All Departments:', res);
-                    options();
+                    questions();
                     })
                 })
     };
@@ -181,11 +185,11 @@ function questions() {
                     name: 'Department',
                     type: 'list',
                     choices: function() {
-                        var deptArry = [];
+                        const deptArray = [];
                         for (let i = 0; i < res.length; i++) {
-                        deptArry.push(res[i].name);
+                        deptArray.push(res[i].name);
                         }
-                        return deptArry;
+                        return deptArray;
                     },
                 }
             ]).then(function (response) {
@@ -207,11 +211,60 @@ function questions() {
                         if(err)throw err;
                         console.log('Your new role has been added!');
                         console.table('All Roles:', res);
-                        options();
+                        questions();
                     })
             })
         })
     };
+
+    // function updateRole(){
+    //     connection.query('SELECT * FROM employee', function(err, res) {
+    //         if (err) throw err;
+    //         inquirer 
+    //         .prompt([
+    //             {
+    //                 name: 'updated_employee',
+    //                 type: 'list', 
+    //                 message: "Who's job do you wish to modify",
+    //                 choices: function() {
+    //                     const employeeArray = [];
+    //                     for (let i = 0; i < res.length; i++) {
+    //                     employeeArray.push(res[i].name);
+    //                     }
+    //                     return employeeArray;
+    //                 },
+    //             },
+    //             {
+    //                 name: 'updated_role',
+    //                 type: 'list',
+    //                 message: 'What position do you want them to hold from now on?',
+    //                 choices: function() {
+    //                     const roleArray = [];
+    //                     for (let i = 0; i < res.length; i++) {
+    //                         roleArray.push(res[i].title);
+    //                     }
+    //                     return roleArray;
+    //                     },
+    //             },
+    //             ]).then(function (response) {
+    //             let role_id;
+    //             for (let a = 0; a < res.length; a++) {
+    //                 if (res[a].title == response.role) {
+    //                     role_id = res[a].id;
+    //                     console.log(role_id)
+    //                 }                  
+    //             }  
+    //             connection.query(
+    //                 'INSERT INTO employee SET ?',
+    //                 {
+    //                     first_name: response.first_name,
+    //                     last_name: response.last_name,
+    //                     role_id: response.role_id,
+    //                 },
+                
+    // }
+    
+
     function exitApp() {
         connection.end();
     };
