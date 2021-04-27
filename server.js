@@ -166,7 +166,7 @@ function questions() {
             })
         };
     function addRole() {
-        connection.query('SELECT * department', function(err, res) {
+        connection.query('SELECT * FROM department', function(err, res) {
             if (err) throw err;
         
             inquirer 
