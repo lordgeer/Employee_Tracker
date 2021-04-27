@@ -143,6 +143,9 @@ function questions() {
             })
     };
     function addDepartment() {
+        const query = 'SELECT * FROM department';
+        connection.query(query, function(err, res) {
+        if(err)throw err;
         inquirer
             .prompt([
                 {
@@ -156,9 +159,7 @@ function questions() {
                         {
                             name: response.newDepartment
                         });
-                    const query = 'SELECT * FROM department';
-                    connection.query(query, function(err, res) {
-                    if(err)throw err;
+                    
                     console.log('Your department has been added!');
                     console.table('All Departments:', res);
                     questions();
@@ -166,7 +167,7 @@ function questions() {
                 })
     };
     function addRole() {
-        connection.query('SELECT * FROM department', function(err, res) {
+        connection.query('SELECT * FROM role, department', function(err, res) {
             if (err) throw err;
         
             inquirer 
@@ -185,21 +186,22 @@ function questions() {
                     name: 'Department',
                     type: 'list',
                     choices: function() {
-                        const deptArray = [];
+                        const departmentArray = [];
                         for (let i = 0; i < res.length; i++) {
-                        deptArray.push(res[i].name);
+                            departmentArray.push(res[i].title);
                         }
-                        return deptArray;
-                    },
-                }
-            ]).then(function (response) {
-                let department_id;
-                for (let a = 0; a < res.length; a++) {
-                    if (res[a].name == response.Department) {
-                        department_id = res[a].id;
+                        return departmentArray;
+                        },
+                        message: "Which department governs this role? "
                     }
-                }
-        
+                    ]).then(function (response) {
+                        let department_id;
+                        for (let a = 0; a < res.length; a++) {
+                            if (res[a].title == response.role) {
+                                role_id = res[a].id;
+                                console.log(department_id)
+                            }                  
+                        }  
                 connection.query(
                     'INSERT INTO role SET ?',
                     {
