@@ -22,8 +22,8 @@ function questions() {
                     'Add an "employee"',
                     'Add a department',
                     'Add a role',
-                    'Update employee role',
-                    'Liquidate an employee',
+                    // 'Update employee role',
+                    // 'Liquidate an employee',
                     'EXIT'
                     ]
                 }).then(function (response) {
@@ -218,7 +218,7 @@ function questions() {
     };
 
     // function updateRole(){
-    //     connection.query('SELECT * FROM employee', function(err, res) {
+    //     connection.query('SELECT * FROM employee', 'SELECT * FROM role', function(err, res) {
     //         if (err) throw err;
     //         inquirer 
     //         .prompt([
@@ -261,10 +261,15 @@ function questions() {
     //                     last_name: response.last_name,
     //                     role_id: response.role_id,
     //                 },
-                
-    // }
-    
-
+    //                 function (err, res) {
+    //                     if(err)throw err;
+    //                     console.log('Your employee has receieved their new position!');
+    //                     console.table('Current Employees:', res); 
+    //                     questions();
+    //                 })
+    //             })
+    //         })
+    //     };
     function exitApp() {
         connection.end();
     };
