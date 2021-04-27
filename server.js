@@ -178,7 +178,7 @@ function questions() {
                 },
                 {
                     name: 'salary',
-                    type: 'input',
+                    type: 'number',
                     message: 'How much will you be paying this new role?'
                 },
                 {
