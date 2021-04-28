@@ -23,7 +23,7 @@ function questions() {
                     'Add a department',
                     'Add a role',
                     // 'Update employee role',
-                    // 'Liquidate an employee',
+                    'Liquidate an employee',
                     'EXIT'
                     ]
                 }).then(function (response) {
@@ -184,12 +184,16 @@ function questions() {
                 {
                     name: 'Department',
                     type: 'list',
-                    choices: function() {
-                        const departmentArray = [];
-                        for (let i = 0; i < res.length; i++) {
-                            departmentArray.push(res[i].title);
-                        }
-                        return departmentArray;
+                    choices: 
+                     function() {
+                        //  console.log('res',res[0].title)
+                        const departmentArray = res.map(key => {
+                            return key.department_name
+                        } );
+                        // for (let i = 0; i < res.length; i++) {
+                        //     departmentArray.push(res[i].department);
+                        // }
+                        return departmentArray
                         },
                         message: "Which department governs this role? "
                     }
@@ -271,6 +275,40 @@ function questions() {
     //             })
     //         })
     //     };
+    function deleteEmployee() {        
+        connection.query(`SELECT employee.first_name, employee.id FROM employee`, function (err, res) {
+            inquirer
+            .prompt([
+              {
+                name: "employee",
+                type: "list",
+                message: "Which employee needs to be 'taken care of'?",
+                choices: function() {
+                    const employeeArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        employeeArray.push(res[i].first_name);
+                    }
+                    return employeeArray;
+                    },
+              }
+            
+            
+            ]).then(function (response) {
+              var matchEmployee = res.find(function (selectedEmployee) {
+                if (response.employee == selectedEmployee.first_name) {
+                  return selectedEmployee;
+                }
+              });
+              connection.query("DELETE FROM employee WHERE id = ?", matchEmployee.id, function (err, res) {},
+              function (err, res) {
+                if (err) throw err;
+                console.log('Last paycheck sent to their family!');
+                console.table('Current Employees:', res); 
+                questions();
+              });
+            })
+          })
+      }
     function exitApp() {
         connection.end();
     };
